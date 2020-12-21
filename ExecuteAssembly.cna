@@ -3,7 +3,8 @@
 
 #Help
 beacon_command_register("ExecuteAssembly", "Loads/Execute .NET assemblies",
-  "\n- Description:\n\tLoads/Injects .NET assemblies by reusing existing loaded CLR, Stomping PE headers, Unlinking .NET related modules,\n\t bypassing ETW, AMSI and dynamically resolving APIs via superfasthash hashing algorithm. \n\n" .
+  "\n- Description:\n\tLoad/Inject .NET assemblies by; reusing the host (spawnto) process loaded CLR AppDomainManager, Stomping Loader/.NET assembly PE DOS headers, Unlinking .NET related modules,
+        bypassing ETW+AMSI, avoiding EDR hooks via NT static syscalls (x64) and hiding imports by dynamically resolving APIs via superfasthash hashing algorithm.  \n\n" .
   "- Usage/Example:\n\tExecuteAssembly --dotnetassembly /tmp/Seatbelt.exe --assemblyargs LogonSessions --unlink-modules --stomp-headers --amsi --etw --spawnto PresentationHost.exe\n\n- Options:\n\t--dotnetassembly: .NET Assembly to load/inject.\n\t--assemblyargs: .NET assembly arguments.\n\t--unlink-modules: Unlink .NET related modules such as CLR/MsCoree related DLLs from PEB data structures.\n\t--stomp-headers: Stomp .NET assembly and reflective DLL PE DOS headers.\n\t--etw: Bypass event tracing on windows (ETW).\n\t--amsi: Bypass AMSI.\n\t--spawnto: Choose spawnto process, list of .NET binaries loading the CLR by default when executed:\n\t\t>'PresentationHost.exe'\n\t\t>'stordiag.exe'\n\t\t>'ScriptRunner.exe'\n\t\t>'caitstatic.exe'\n\t\t>'Microsoft.Uev.SyncController.exe'\n\t\t>'TsWpfWrp.exe'\n\t\t>'UevAgentPolicyGenerator.exe'\n\t\t>'UevAppMonitor.exe'\n\t\t>'FileHistory.exe'\n\t\t>'UevTemplateBaselineGenerator.exe'\n\t\t>'UevTemplateConfigItemGenerator.exe'");
 
 alias ExecuteAssembly {
@@ -199,5 +200,3 @@ alias ExecuteAssembly {
   #------------------------------------------------------------------------------------------------------------------------------#
 
 }
-
-  
