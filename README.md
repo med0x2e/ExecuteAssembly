@@ -22,6 +22,7 @@ ExecuteAssembly is an alternative of CS execute-assembly, built with C/C++ and i
    * ExecuteAssembly.cna
    * ExecuteAssembly-x64.dll
    * ExecuteAssembly-x86.dll
+   * CLI Options:
 
       ``--dotnetassembly: .NET Assembly to load/inject.``
 
@@ -65,7 +66,7 @@ Was created and tested mainly on cobalt strike, however it can be used with othe
    *  `STOMPHEADERS_FLAG`: 0|1
    *  `UNLINKMODULES_FLAG`: 0|1
    *  `LENGTH_FLAG`: .NET assembly size in bytes
-   *  `LL_FLAG`: strlen(LENGTH_FLAG) (just bear with me here)
+   *  `LL_FLAG`: length_of(LENGTH_FLAG) (just bear with me here or pretend you didn't read this)
    *  `B64_ENCODED_COMPRESSED_PAYLOAD`: Gzip compressed and base64 encoded .NET assembly.
    *  `[SPACE SEPARATED ARGUMENTS]`: .NET assembly arguments
 
