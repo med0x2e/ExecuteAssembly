@@ -15,7 +15,7 @@ ExecuteAssembly is an alternative of CS execute-assembly, built with C/C++ and i
 
 ## Usage:
 * <b><u>x64(syscalls):</u></b> this version depends mainly on the use of static syscalls to bypass EDR hooks, you can use this version to build the x64 version of the DLL only (x64 support only for now).
-* <b><u>x86/x64(PEB):</u></b>  retrieves required API addresses dynamically at runtime by walking the PEB modules EAP tables and resolving APIs via superfasthash hash. however doesn't account for EDR hooks placed either on kernel32.dll or ntdll.dll, you can use this version to build both the x86 and x64 DLLs or only the x86 DLL and use x64(syscalls) version for building the x64 DLL to account for common EDR hooks.
+* <b><u>x86|x64(PEB):</u></b>  retrieves required API addresses dynamically at runtime by walking the PEB modules EAP tables and resolving APIs via superfasthash hash. however doesn't account for EDR hooks placed either on kernel32.dll or ntdll.dll, you can use this version to build both the x86 and x64 DLLs or only the x86 DLL and use x64(syscalls) version for building the x64 DLL to account for common EDR hooks.
 * Build the required DLLs using VS2017 and/or Windows SDK 10.0.17134.0 (or compatible sdk versions).
   
 * Make sure gzip is installed and the following artifacts are placed within the same folder then just load the aggressor script "ExecuteAssembly.cna":
