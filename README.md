@@ -5,7 +5,7 @@ ExecuteAssembly is an alternative of CS execute-assembly, built with C/C++ and i
 - CLR related modules unlinking from PEB  data structures. (use MS "ListDLLs" utility instead of PH for confirmation)
 - .NET Aseembly and Reflective DLL PE DOS headers stomping.
 - Use of static hardcoded syscalls for bypassing EDR Hooks. (x64 support only for now, from WinXP to Win10 19042)
-- CLR "AppDomain/AppDomainManager" enumeration and re-use (ICLRMetaHost->EnumerateLoadedRuntimes) -> set spawnto to a known Windows .NET process.
+- CLR "AppDomain/AppDomainManager" enumeration and re-use (ICLRMetaHost->EnumerateLoadedRuntimes), just set the spawnto/host process to a known Windows .NET process.
 - Dynamic Resolution of WIN32 APIs (PEB) using APIs corresponding hash (SuperFastHash)
 - AMSI and ETW patching prior to loading .NET assemblies.
 - .NET assembly bytes parsing and scanning for the CLR version to load/use.
