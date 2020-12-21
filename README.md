@@ -23,30 +23,30 @@ ExecuteAssembly is an alternative of CS execute-assembly, built with C/C++ and i
    * ExecuteAssembly-x64.dll
    * ExecuteAssembly-x86.dll
 
-``--dotnetassembly: .NET Assembly to load/inject.``
+      ``--dotnetassembly: .NET Assembly to load/inject.``
 
-``--assemblyargs: .NET assembly arguments.``
+      ``--assemblyargs: .NET assembly arguments.``
 
-``--unlink-modules: Unlink .NET related modules such as CLR/MsCoree related DLLs from PEB data structures.``
+      ``--unlink-modules: Unlink .NET related modules such as CLR/MsCoree related DLLs from PEB data structures.``
 
-``--stomp-headers: Stomp .NET assembly and reflective DLL PE DOS headers.``
+      ``--stomp-headers: Stomp .NET assembly and reflective DLL PE DOS headers.``
 
-``--etw: Bypass event tracing on windows (ETW).``
+      ``--etw: Bypass event tracing on windows (ETW).``
 
-``--amsi: Bypass AMSI.``
+      ``--amsi: Bypass AMSI.``
 
-``--spawnto: Choose spawnto process, list of .NET binaries loading the CLR by default when executed:``<br>
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;``- PresentationHost.exe``<br>
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;``- stordiag.exe``<br>
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;``- ScriptRunner.exe``<br>
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;``- caitstatic.exe``<br>
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;``- Microsoft.Uev.SyncController.exe``<br>
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;``- TsWpfWrp.exe``<br>
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;``- UevAgentPolicyGenerator.exe``<br>
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;``- UevAppMonitor.exe``<br>
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;``- FileHistory.exe``<br>
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;``- UevTemplateBaselineGenerator.exe``<br>
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;``- UevTemplateConfigItemGenerator.exe``<br>
+      ``--spawnto: Choose spawnto process, list of .NET binaries loading the CLR by default when executed:``<br>
+         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;``- PresentationHost.exe``<br>
+         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;``- stordiag.exe``<br>
+         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;``- ScriptRunner.exe``<br>
+         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;``- caitstatic.exe``<br>
+         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;``- Microsoft.Uev.SyncController.exe``<br>
+         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;``- TsWpfWrp.exe``<br>
+         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;``- UevAgentPolicyGenerator.exe``<br>
+         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;``- UevAppMonitor.exe``<br>
+         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;``- FileHistory.exe``<br>
+         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;``- UevTemplateBaselineGenerator.exe``<br>
+         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;``- UevTemplateConfigItemGenerator.exe``<br>
 
 * Check spawnto-list.txt for extra MS binaries loading the the CLR by default and are good candidates to set as a spawnto. (would avoid the known LOLBins unless if it is a dev's machine may be)
 
@@ -58,18 +58,18 @@ ExecuteAssembly is an alternative of CS execute-assembly, built with C/C++ and i
 - ``ExecuteAssembly --amsi --etw --dotnetassembly /tmp/ghostpack/SharpWMI.exe --assemblyargs action=query query="select * from win32_process" --spawnto PresentationHost.exe``
 
 ## C2 Support:
-Was created and tested mainly on cobalt strike, however it can be used with other C2 frameworks (MSF ..etc) just keep in mind that the reflective DLLMAIN is expecting the one-liner payload as a parameter (lpReserved) in the following format;
-*  AMSI_FLAG|ETW_FLAG|STOMPHEADERS_FLAG|UNLINKMODULES_FLAG|LL_FLAG.LENGTH_FLAG.B64_ENCODED_COMPRESSED_PAYLOAD [SPACE SEPARATED ARGUMENTS]
-   *  AMSI_FLAG: 0|1 (either 0 or 1)
-   *  ETW_FLAG: 0|1
-   *  STOMPHEADERS_FLAG: 0|1
-   *  UNLINKMODULES_FLAG: 0|1
-   *  LENGTH_FLAG: .NET assembly size in bytes
-   *  LL_FLAG: strlen(LENGTH_FLAG) (just bear with me here)
-   *  B64_ENCODED_COMPRESSED_PAYLOAD: Gzip compressed and base64 encoded .NET assembly.
-   *  [SPACE SEPARATED ARGUMENTS]: .NET assembly arguments
+Was created and tested mainly on cobalt strike, however it can be used with other C2 frameworks as well (MSF ..etc), just keep in mind that the reflective DLLMAIN is expecting the one-liner payload as a parameter (lpReserved) in the following format (with no ".");
+*  `AMSI_FLAG|ETW_FLAG|STOMPHEADERS_FLAG|UNLINKMODULES_FLAG|LL_FLAG.LENGTH_FLAG.B64_ENCODED_COMPRESSED_PAYLOAD [SPACE SEPARATED ARGUMENTS]`
+   *  `AMSI_FLAG`: 0|1 (either 0 or 1)
+   *  `ETW_FLAG`: 0|1
+   *  `STOMPHEADERS_FLAG`: 0|1
+   *  `UNLINKMODULES_FLAG`: 0|1
+   *  `LENGTH_FLAG`: .NET assembly size in bytes
+   *  `LL_FLAG`: strlen(LENGTH_FLAG) (just bear with me here)
+   *  `B64_ENCODED_COMPRESSED_PAYLOAD`: Gzip compressed and base64 encoded .NET assembly.
+   *  `[SPACE SEPARATED ARGUMENTS]`: .NET assembly arguments
 
-## Next:
+## TODO:
 - An alternative of RFLL, BOF + Named Pipes may be (not sure about long-duration running tasks)
 - x86 support for static syscalls.
 - Bug fixing and cleanup of any dangling pointers or mem-leaks i missed :p
