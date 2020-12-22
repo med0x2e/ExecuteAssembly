@@ -59,7 +59,7 @@ ExecuteAssembly is an alternative of CS execute-assembly, built with C/C++ and i
 - ``ExecuteAssembly --amsi --etw --dotnetassembly /tmp/ghostpack/SharpWMI.exe --assemblyargs action=query query="select * from win32_process" --spawnto PresentationHost.exe``
 
 ## C2 Support:
-Was created and tested mainly on cobalt strike, however it can be used with other C2 frameworks as well (MSF ..etc), just keep in mind that the reflective DLLMAIN is expecting the one-liner payload as a parameter (lpReserved) in the following format (with no ".");
+Was created and tested mainly on cobalt strike, however it can be used with other C2 frameworks as well (MSF ..etc), just keep in mind that the reflective DLL DLLMAIN is expecting the one-liner payload as a parameter (lpReserved) in the following format (with no ".");
 *  `AMSI_FLAG|ETW_FLAG|STOMPHEADERS_FLAG|UNLINKMODULES_FLAG|LL_FLAG.LENGTH_FLAG.B64_ENCODED_COMPRESSED_PAYLOAD [SPACE SEPARATED ARGUMENTS]`
    *  `AMSI_FLAG`: 0|1 (either 0 or 1)
    *  `ETW_FLAG`: 0|1
