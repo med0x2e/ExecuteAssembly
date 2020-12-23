@@ -78,6 +78,7 @@ Was created and tested mainly on cobalt strike, however it can be used with othe
 
 ## Known Issues:
 - Support for SharpHound v2 and v3 (v2 used to work just fine, need to figure out what changed).
+- .NET assembly size limitation ( < 1MB)
 
 ## Credits/References:
 * https://github.com/stephenfewer/ReflectiveDLLInjection
