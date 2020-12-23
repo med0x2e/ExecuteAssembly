@@ -132,7 +132,7 @@ namespace PEModuleHelper {
 
 	void StompPEHeaders(HANDLE hProcess) {
 
-		//PE DOS HEADER
+		//PE DOS HEADER SIG
 		LPCSTR _pattern = "\x4d\x5a\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf8\x00\x00\x00\x0e\x1f\xba\x0e\x00\xb4\x09\xcd\x21\xb8\x01\x4c\xcd\x21\x54\x68\x69\x73\x20\x70\x72\x6f\x67\x72\x61\x6d\x20\x63\x61\x6e\x6e\x6f\x74\x20\x62\x65\x20\x72\x75\x6e\x20\x69\x6e\x20\x44\x4f\x53\x20\x6d\x6f\x64\x65";
 
 		printf("[+]: Obtaining a handle of the current process: %d\n", (INT_PTR)hProcess);
@@ -176,7 +176,7 @@ namespace PEModuleHelper {
 		}
 
 		DWORD Protect;
-		//zeroing out 224 bytes of the PE Header leads to crashing the loaded .net assembly, I'm only patching specific PE DOS HEADER offsets/signatured byte sequences as a workaround.
+		//zeroing out 224 bytes of the PE DOS Header leads to crashing the loaded .net assembly, I'm only patching specific PE DOS HEADER offsets/signatured byte sequences as a workaround.
 		SIZE_T Size = 2;
 		VirtualProtect((PVOID)ntheaderAddr, Size, PAGE_READWRITE, &Protect);
 		RtlZeroMemory((PVOID)ntheaderAddr, Size);
