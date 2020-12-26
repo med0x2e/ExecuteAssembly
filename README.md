@@ -71,7 +71,7 @@ Was created and tested mainly on cobalt strike, however it can be used with othe
    *  `[SPACE SEPARATED ARGUMENTS]`: .NET assembly arguments
 
 ## TODO:
-- Testing with malleable profiles with different options set. (userwx, startrwx ..etc.)
+- Testing via malleable profiles with different options set. (userwx, startrwx ..etc.)
 - An alternative of RFLL, BOF + Named Pipes may be (not sure about long-duration running tasks)
 - x86 support for static syscalls.
 - Bug fixing and cleanup of any dangling pointers or mem-leaks i missed :p
