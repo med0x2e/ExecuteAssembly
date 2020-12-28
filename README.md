@@ -3,7 +3,7 @@ ExecuteAssembly is an alternative of CS execute-assembly, built with C/C++ and i
 
 ## TLDR (Features):
 - CLR related modules unlinking from PEB  data structures. (use MS "ListDLLs" utility instead of PH for confirmation)
-- .NET Aseembly and Reflective DLL PE DOS headers stomping (specific bytes/offsets).
+- .NET Aseembly and Reflective DLL headers stomping (MZ bytes, e_lfanew, DOS Header, Rich Text, PE Header).
 - Use of static hardcoded syscalls for bypassing EDR Hooks. (x64 support only for now, from WinXP to Win10 19042)
 - CLR "AppDomain/AppDomainManager" enumeration and re-use (ICLRMetaHost->EnumerateLoadedRuntimes), just set the spawnto/host process to a known Windows .NET process.
 - Dynamic Resolution of WIN32 APIs (PEB) using APIs corresponding hash (SuperFastHash)
@@ -70,8 +70,13 @@ Was created and tested mainly on cobalt strike, however it can be used with othe
    *  `B64_ENCODED_COMPRESSED_PAYLOAD`: Gzip compressed and base64 encoded .NET assembly.
    *  `[SPACE SEPARATED ARGUMENTS]`: .NET assembly arguments
 
+## Testing Notes:
+* Tested with cobalt strike 4.x using no malleable profiles.
+* Tested with cobalt strike 4.x using the following malleable profile(multiple memory evasion options set (userwx, startrwx ..etc));
+  * https://github.com/threatexpress/malleable-c2/blob/master/jquery-c2.4.0.profile
+
+
 ## TODO:
-- Testing via malleable profiles with different options set. (userwx, startrwx ..etc.)
 - An alternative of RFLL, BOF + Named Pipes may be (not sure about long-duration running tasks)
 - x86 support for static syscalls.
 - Bug fixing and cleanup of any dangling pointers or mem-leaks i missed :p

@@ -169,7 +169,11 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD dwReason, LPVOID lpReserved)
 			data = data + _lenbinLength + 1;
 			LPSTR currentArg;
 			LPSTR nextArg;
-			currentArg = strtok_s(data, " ", &nextArg);
+			//currentArg = strtok_s(data, " ", &nextArg);
+			LPSTR _del = " ";
+			nextArg = (LPSTR)malloc(_binLength);
+			currentArg = _strtok(data, _del, nextArg, _binLength);
+			free(nextArg);
 			LPSTR b64Assembly = trim(currentArg);
 
 			//retrieving arguments
@@ -213,6 +217,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD dwReason, LPVOID lpReserved)
 			free(assemblyBytes);
 			free(_decompressedData);
 			delete[] lpReservedW;
+			free(currentArg);
 
 		}
 		else {

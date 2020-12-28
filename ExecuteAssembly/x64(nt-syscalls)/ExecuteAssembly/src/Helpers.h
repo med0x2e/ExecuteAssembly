@@ -16,5 +16,6 @@ extern LPSTR xorDecrypt(LPSTR data, uint8_t key, size_t _binLength);
 extern LPSTR trim(LPSTR str);
 extern LPSTR strmbtok(LPSTR input, LPSTR delimit, LPSTR openblock, LPSTR closeblock);
 extern void removeChar(LPSTR str, const uint8_t toRemove);
+extern LPSTR _strtok(LPSTR data, const LPSTR delim, LPSTR pNext, size_t dLen);
 
 #endif 

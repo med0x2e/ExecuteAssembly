@@ -25,7 +25,7 @@ void Check(PBYTE base, AIterator buf_start, AIterator buf_end, BIterator pat_sta
 LPSTR* FindPattern(HANDLE hProcess, LPCSTR pattern, size_t* _len) {
 
 	MEMORY_BASIC_INFORMATION memInfo;
-	ULONG returnedBytes = NULL;
+	SIZE_T returnedBytes = NULL;
 
 	*(_len) = 0;
 

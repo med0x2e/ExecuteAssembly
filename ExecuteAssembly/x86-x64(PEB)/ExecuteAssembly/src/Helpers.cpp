@@ -182,3 +182,33 @@ void removeChar(LPSTR str, uint8_t toRemove) {
 	}
 	*dst = '\0';
 }
+
+LPSTR _strtok(LPSTR data, const LPSTR delim, LPSTR pNext, size_t dLen)
+{
+	static LPSTR sTok = (char*)malloc(dLen);
+	register LPSTR cpy = (char*)pNext;
+	memset(sTok, 0, sizeof(sTok));
+
+	if (data != NULL)
+		strcpy(cpy, data);
+
+	if (cpy == NULL)
+		return NULL;
+
+	int i = 0;
+
+	for (i = 0; i < dLen; i++)
+	{
+		if (cpy[i] == delim[0]) break;
+		if (cpy[i] == delim[1])
+		{
+			cpy = NULL;
+			break;
+		}
+		sTok[i] = cpy[i];
+	}
+
+	if (cpy != NULL) strcpy(cpy, &cpy[i + 1]);
+
+	return sTok;
+}

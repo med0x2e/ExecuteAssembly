@@ -50,8 +50,8 @@ EXTERN_C NTSTATUS NtQueryVirtualMemory(
 	IN PVOID BaseAddress,
 	IN MEMORY_INFORMATION_CLASS MemoryInformationClass,
 	OUT PVOID MemoryInformation,
-	IN ULONG_PTR MemoryInformationLength,
-	OUT PULONG ReturnLength OPTIONAL);
+	IN SIZE_T MemoryInformationLength,
+	OUT PSIZE_T ReturnLength OPTIONAL);
 
 EXTERN_C NTSTATUS NtOpenProcess(
 	OUT PHANDLE ProcessHandle,
